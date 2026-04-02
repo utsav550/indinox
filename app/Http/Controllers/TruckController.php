@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Truck;
 use App\Models\TruckType;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 
 class TruckController extends Controller
@@ -24,11 +25,16 @@ class TruckController extends Controller
      */
   
 
+
+
 public function create()
 {
     $types = TruckType::all();
 
-    return view('trucks.create', compact('types'));
+    // Only drivers NOT assigned to any truck
+    $drivers = Driver::whereDoesntHave('truck')->get();
+
+    return view('trucks.create', compact('types', 'drivers'));
 }
 
     /**
@@ -58,6 +64,8 @@ public function create()
         'capacity' => $request->capacity,
         'ownership_type' => $request->ownership_type,
         'status' => $request->status,
+         // ✅ ADD THESE
+    'driver_id' => $request->driver_id,
     ]);
 
     return redirect()->route('trucks.index');
@@ -73,12 +81,18 @@ public function create()
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+  
+
+public function edit($id)
 {
     $truck = \App\Models\Truck::findOrFail($id);
     $types = \App\Models\TruckType::all();
 
-    return view('trucks.edit', compact('truck', 'types'));
+    $drivers = Driver::whereDoesntHave('truck')
+        ->orWhere('id', $truck->driver_id) // allow current driver
+        ->get();
+
+    return view('trucks.edit', compact('truck', 'types', 'drivers'));
 }
 
     /**
@@ -94,6 +108,7 @@ public function create()
         'capacity' => $request->capacity,
         'ownership_type' => $request->ownership_type,
         'status' => $request->status,
+        'driver_id' => $request->driver_id,
     ]);
 
     return redirect()->route('trucks.index');

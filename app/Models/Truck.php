@@ -12,11 +12,17 @@ class Truck extends Model
     'truck_type_id',
     'capacity',
     'ownership_type',
-    'status'
+    'status',
+    'driver_id',
+    'current_location'
 ];
 public function type()
 {
     return $this->belongsTo(TruckType::class, 'truck_type_id');
+}
+public function driver()
+{
+    return $this->belongsTo(\App\Models\Driver::class);
 }
 }
 

@@ -11,4 +11,8 @@ class Driver extends Model
     'phone',
     'license_number'
 ];
+public function truck()
+{
+    return $this->hasOne(\App\Models\Truck::class);
+}
 }

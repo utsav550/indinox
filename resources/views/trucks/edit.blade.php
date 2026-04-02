@@ -34,6 +34,18 @@
         <option value="driver_owned" {{ $truck->ownership_type == 'driver_owned' ? 'selected' : '' }}>Driver Owned</option>
     </select>
 
+    <!-- Driver Assignment -->
+    <label class="block mb-1 font-medium">Assign Driver</label>
+<select name="driver_id" class="w-full border px-3 py-2 mb-4 rounded">
+    <option value="">-- Select Driver --</option>
+    
+    @foreach($drivers as $driver)
+        <option value="{{ $driver->id }}"
+            {{ $truck->driver_id == $driver->id ? 'selected' : '' }}>
+            {{ $driver->name }} ({{ $driver->phone }})
+        </option>
+    @endforeach
+</select>
     <!-- Status -->
     <label class="block mb-1 font-medium">Status</label>
     <select name="status" class="w-full border px-3 py-2 mb-4 rounded">

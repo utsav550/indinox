@@ -25,6 +25,16 @@
     <label class="block mb-1 font-medium">Capacity</label>
     <input name="capacity" class="w-full border px-3 py-2 mb-4 rounded">
 
+    <!-- Driver -->
+    <label class="block mb-1 font-medium">Assign Driver</label>
+<select name="driver_id" class="w-full border px-3 py-2 mb-4 rounded">
+    <option value="">-- Select Driver --</option>
+    @foreach($drivers as $driver)
+        <option value="{{ $driver->id }}">
+            {{ $driver->name }} ({{ $driver->phone }})
+        </option>
+    @endforeach
+</select>
     <!-- Ownership -->
     <label class="block mb-1 font-medium">Ownership</label>
     <select name="ownership_type" class="w-full border px-3 py-2 mb-4 rounded">

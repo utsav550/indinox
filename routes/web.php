@@ -16,8 +16,8 @@ Route::post('/loads/{id}/status', [LoadController::class, 'updateStatus'])->name
 Route::resource('loads', LoadController::class);
 Route::resource('trucks', TruckController::class);
 Route::get('/dispatch', [DispatchController::class, 'index'])->name('dispatch.index');
-Route::post('/dispatch/assign', [DispatchController::class, 'assign'])->name('dispatch.assign');
-Route::post('/dispatch/assign', [DispatchController::class, 'assign'])->name('dispatch.assign');
+
+Route::post('/dispatch/{id}', [DispatchController::class, 'assign'])->name('dispatch.assign');
 Route::get('/', function () {
     return redirect('/customers');
 });
