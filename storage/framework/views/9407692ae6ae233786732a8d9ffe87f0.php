@@ -10,43 +10,64 @@
 
 <table class="w-full mt-4 bg-white shadow">
     <tr class="bg-gray-200 text-left">
-    <th class="p-2">Truck Code</th>
-    <th class="p-2">Registration</th>
-    <th class="p-2">Type</th>
-    <th class="p-2">Capacity</th>
-    <th class="p-2">Ownership</th>
-    <th class="p-2">Status</th>
-    <th class="p-2">Action</th>
-</tr>
+        <th class="p-2">Truck Code</th>
+        <th class="p-2">Registration</th>
+        <th class="p-2">Type</th>
+        <th class="p-2">Driver</th> <!-- ✅ NEW -->
+        <th class="p-2">Location</th> <!-- ✅ NEW -->
+        <th class="p-2">Capacity</th>
+        <th class="p-2">Ownership</th>
+        <th class="p-2">Status</th>
+        <th class="p-2">Action</th>
+    </tr>
 
     <?php $__currentLoopData = $trucks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $truck): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-   <tr class="border-t">
-    <td class="p-2"><?php echo e($truck->truck_code); ?></td>
-    <td class="p-2"><?php echo e($truck->registration_number); ?></td>
-    <td class="p-2"><?php echo e($truck->type->name ?? ''); ?></td>
-    <td class="p-2"><?php echo e($truck->capacity); ?></td>
-    <td class="p-2 capitalize">
-        <?php echo e(str_replace('_', ' ', $truck->ownership_type)); ?>
+    <tr class="border-t">
+        <td class="p-2"><?php echo e($truck->truck_code); ?></td>
+        <td class="p-2"><?php echo e($truck->registration_number); ?></td>
+        <td class="p-2"><?php echo e($truck->type->name ?? ''); ?></td>
 
-    </td>
+        <!-- 👤 Driver -->
+        <td class="p-2">
+            <?php if($truck->driver_id): ?>
+                <?php echo e($truck->driver->name); ?> <br>
+               
+            <?php else: ?>
+                <span class="text-gray-400 text-sm">No Driver</span>
+            <?php endif; ?>
+        </td>
 
-    <td class="p-2">
-        <?php if($truck->status == 'active'): ?>
-            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Active</span>
-        <?php elseif($truck->status == 'in_service'): ?>
-            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">In Service</span>
-        <?php elseif($truck->status == 'inoperative'): ?>
-            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Inoperative</span>
-        <?php elseif($truck->status == 'on_hold'): ?>
-            <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">On Hold</span>
-        <?php endif; ?>
-    </td>
-    <td class="p-2">
-    <a href="<?php echo e(route('trucks.edit', $truck->id)); ?>" class="text-blue-500">
-        Edit
-    </a>
-</td>
-</tr>
+        <!-- 📍 Location -->
+        <td class="p-2">
+            <?php echo e($truck->current_location ?? '—'); ?>
+
+        </td>
+
+        <td class="p-2"><?php echo e($truck->capacity); ?></td>
+
+        <td class="p-2 capitalize">
+            <?php echo e(str_replace('_', ' ', $truck->ownership_type)); ?>
+
+        </td>
+
+        <td class="p-2">
+            <?php if($truck->status == 'active'): ?>
+                <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Active</span>
+            <?php elseif($truck->status == 'in_service'): ?>
+                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">In Service</span>
+            <?php elseif($truck->status == 'inoperative'): ?>
+                <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Inoperative</span>
+            <?php elseif($truck->status == 'on_hold'): ?>
+                <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">On Hold</span>
+            <?php endif; ?>
+        </td>
+
+        <td class="p-2">
+            <a href="<?php echo e(route('trucks.edit', $truck->id)); ?>" class="text-blue-500">
+                Edit
+            </a>
+        </td>
+    </tr>
     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 </table>

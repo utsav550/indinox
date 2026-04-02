@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\LoadService;
+
+LoadService::updateExpired();
 
 class Dispatch extends Model
 {

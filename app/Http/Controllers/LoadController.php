@@ -8,15 +8,26 @@ use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\Truck;
   use App\Models\TruckType;
+  use Carbon\Carbon;
 
 class LoadController extends Controller
 {
-    public function index(Request $request)
+ 
+public function index(Request $request)
 {
-    // Step 1: Create query
+    $today = Carbon::today();
+
+    // ✅ STEP 1: Expire old pending loads
+    Load::where('status', 'pending')
+        ->whereDate('pickup_date', '<', $today)
+        ->update([
+            'status' => 'expired'
+        ]);
+
+    // Step 2: Create query
     $query = Load::with('customer', 'driver', 'truckType');
 
-    // Step 2: Apply filters
+    // Step 3: Filters
     if ($request->search) {
         $query->whereHas('customer', function ($q) use ($request) {
             $q->where('name', 'like', '%' . $request->search . '%');
@@ -27,7 +38,7 @@ class LoadController extends Controller
         $query->where('status', $request->status);
     }
 
-    // Step 3: Get & sort
+    // Step 4: Get & sort
     $loads = $query
         ->orderBy('pickup_date')
         ->get()
@@ -46,7 +57,6 @@ class LoadController extends Controller
 
     return view('loads.index', compact('loads'));
 }
-
   
 
 public function create()

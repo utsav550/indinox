@@ -7,11 +7,15 @@ use App\Models\Truck;
 use App\Models\Dispatch;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\LoadService;
+
 
 class DispatchController extends Controller
 {
     public function index(Request $request)
 {
+    LoadService::updateExpired();
+
     $today = Carbon::today();
 
     $status = $request->status;
@@ -28,6 +32,7 @@ class DispatchController extends Controller
     'assigned' => Load::where('status', 'assigned')->count(),
     'in_transit' => Load::where('status', 'in_transit')->count(),
     'delivered' => Load::where('status', 'delivered')->count(),
+    'expired' => Load::where('status', 'expired')->count(), // ✅ ADD THIS
 ];
     $loads = $query->get()
         ->map(function ($load) use ($today) {

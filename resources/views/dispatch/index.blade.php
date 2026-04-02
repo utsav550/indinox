@@ -32,6 +32,11 @@
    class="block px-3 py-2 rounded {{ $status == 'delivered' ? 'bg-gray-200 font-semibold' : '' }}">
     Delivered ({{ $counts['delivered'] }})
 </a>
+<a href="/dispatch?status=expired"
+   class="block px-3 py-2 rounded {{ $status == 'expired' ? 'bg-red-100 font-semibold text-red-700' : '' }}">
+    Expired ({{ $counts['expired'] ?? 0 }})
+</a>
+
     </div>
 
     <!-- MAIN -->

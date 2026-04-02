@@ -81,7 +81,9 @@
             <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Pending</span>
         @elseif($load->status == 'assigned')
             <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded">Assigned</span>
-        @endif
+        @elseif($load->status == 'expired')
+    <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Expired</span>
+@endif
     </td>
 
     <td class="p-2 text-center">

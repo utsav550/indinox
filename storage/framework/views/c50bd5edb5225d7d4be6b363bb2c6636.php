@@ -35,6 +35,18 @@
         <option value="driver_owned" <?php echo e($truck->ownership_type == 'driver_owned' ? 'selected' : ''); ?>>Driver Owned</option>
     </select>
 
+    <!-- Driver Assignment -->
+    <label class="block mb-1 font-medium">Assign Driver</label>
+<select name="driver_id" class="w-full border px-3 py-2 mb-4 rounded">
+    <option value="">-- Select Driver --</option>
+    
+    <?php $__currentLoopData = $drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <option value="<?php echo e($driver->id); ?>"
+            <?php echo e($truck->driver_id == $driver->id ? 'selected' : ''); ?>>
+            <?php echo e($driver->name); ?> (<?php echo e($driver->phone); ?>)
+        </option>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+</select>
     <!-- Status -->
     <label class="block mb-1 font-medium">Status</label>
     <select name="status" class="w-full border px-3 py-2 mb-4 rounded">
