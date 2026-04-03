@@ -14,7 +14,11 @@ class Truck extends Model
     'ownership_type',
     'status',
     'driver_id',
-    'current_location'
+
+    // ✅ ADD THESE
+    'current_location',
+    'current_lat',
+    'current_lng'
 ];
 public function type()
 {

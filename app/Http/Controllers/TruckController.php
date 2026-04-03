@@ -66,6 +66,9 @@ public function create()
         'status' => $request->status,
          // ✅ ADD THESE
     'driver_id' => $request->driver_id,
+    'current_location' => $request->current_location,
+'current_lat' => $request->current_lat,
+'current_lng' => $request->current_lng,
     ]);
 
     return redirect()->route('trucks.index');
@@ -109,6 +112,9 @@ public function edit($id)
         'ownership_type' => $request->ownership_type,
         'status' => $request->status,
         'driver_id' => $request->driver_id,
+        'current_location' => $request->current_location,
+'current_lat' => $request->current_lat,
+'current_lng' => $request->current_lng,
     ]);
 
     return redirect()->route('trucks.index');

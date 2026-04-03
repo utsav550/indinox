@@ -21,6 +21,14 @@ class Load extends Model
     'truck_type_required_id',
     'priority',
     'trip_days',
+    'pickup_city',
+    'delivery_city',
+    'pickup_address',
+    'pickup_lat',
+    'pickup_lng',
+    'delivery_address',
+    'delivery_lat',
+    'delivery_lng',
     'notes',
     'status'
 

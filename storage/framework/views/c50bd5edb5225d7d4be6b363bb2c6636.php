@@ -1,6 +1,8 @@
 
 
 <?php $__env->startSection('content'); ?>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC65AaWhsi_FNGW6KY7WXFoA-YB41UQhyI&libraries=places"></script>
+
 
 <h2 class="text-xl font-bold mb-4">Edit Truck</h2>
 
@@ -55,6 +57,14 @@
         <option value="inoperative" <?php echo e($truck->status == 'inoperative' ? 'selected' : ''); ?>>Inoperative</option>
         <option value="on_hold" <?php echo e($truck->status == 'on_hold' ? 'selected' : ''); ?>>On Hold</option>
     </select>
+    <!-- 📍 Current Location -->
+<label class="block mb-1 font-medium">Current Location</label>
+<input id="truck_location" name="current_location"
+       value="<?php echo e($truck->current_location); ?>"
+       class="w-full border px-3 py-2 mb-4 rounded">
+
+<input type="hidden" name="current_lat" id="current_lat" value="<?php echo e($truck->current_lat); ?>">
+<input type="hidden" name="current_lng" id="current_lng" value="<?php echo e($truck->current_lng); ?>">
 
     <button class="bg-blue-500 text-white px-4 py-2 rounded w-full">
         Update Truck
@@ -62,6 +72,49 @@
 
 </form>
 </div>
+<script>
+function getCityFromPlace(place) {
+    let city = '';
+
+    for (const component of place.address_components) {
+        if (component.types.includes('locality')) {
+            city = component.long_name;
+        }
+    }
+
+    if (!city) {
+        for (const component of place.address_components) {
+            if (component.types.includes('administrative_area_level_2')) {
+                city = component.long_name;
+            }
+        }
+    }
+
+    return city;
+}
+
+function initTruckAutocomplete() {
+    const input = document.getElementById('truck_location');
+    const autocomplete = new google.maps.places.Autocomplete(input);
+
+    autocomplete.addListener('place_changed', function () {
+        const place = autocomplete.getPlace();
+
+        if (!place.geometry) {
+            alert("Please select a valid location");
+            input.value = '';
+            return;
+        }
+
+        document.getElementById('current_lat').value = place.geometry.location.lat();
+        document.getElementById('current_lng').value = place.geometry.location.lng();
+
+        input.value = getCityFromPlace(place);
+    });
+}
+
+google.maps.event.addDomListener(window, 'load', initTruckAutocomplete);
+</script>
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\utsav\indinox\resources\views/trucks/edit.blade.php ENDPATH**/ ?>
