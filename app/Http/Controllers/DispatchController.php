@@ -135,11 +135,38 @@ class DispatchController extends Controller
                 // ✅ ASSIGNED LOAD DATA
                 if ($load->status === 'assigned') {
                     $dispatch = Dispatch::where('load_id', $load->id)->latest()->first();
+if ($dispatch) {
+    $truck = Truck::with('driver')->find($dispatch->truck_id);
 
-                    if ($dispatch) {
-                        $load->assignedTruck = Truck::with('driver')->find($dispatch->truck_id);
-                        $load->dispatchDetails = $dispatch;
-                    }
+    // 📍 CALCULATE DISTANCE
+    if (
+        $truck->current_lat && $truck->current_lng &&
+        $load->pickup_lat && $load->pickup_lng
+    ) {
+        $earthRadius = 6371;
+
+        $latFrom = deg2rad($truck->current_lat);
+        $lonFrom = deg2rad($truck->current_lng);
+        $latTo = deg2rad($load->pickup_lat);
+        $lonTo = deg2rad($load->pickup_lng);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(
+            pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) *
+            pow(sin($lonDelta / 2), 2)
+        ));
+
+        $truck->distance = round($angle * $earthRadius, 2);
+    } else {
+        $truck->distance = null;
+    }
+
+    $load->assignedTruck = $truck;
+    $load->dispatchDetails = $dispatch;
+}
                 }
 
                 return $load;
@@ -176,4 +203,21 @@ class DispatchController extends Controller
 
         return back();
     }
+    public function unassign($id)
+{
+    $load = Load::findOrFail($id);
+
+    // Find dispatch
+    $dispatch = Dispatch::where('load_id', $load->id)->latest()->first();
+
+    if ($dispatch) {
+        $dispatch->delete();
+    }
+
+    // Update load back to pending
+    $load->status = 'pending';
+    $load->save();
+
+    return back()->with('success', 'Load unassigned successfully');
+}
 }

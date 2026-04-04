@@ -3,156 +3,272 @@
 <?php $__env->startSection('content'); ?>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC65AaWhsi_FNGW6KY7WXFoA-YB41UQhyI&libraries=places"></script>
 
-<h2 class="text-xl font-bold mb-4">Create Load</h2>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
-<div class="flex justify-center">
-<form method="POST" action="<?php echo e(route('loads.store')); ?>" class="bg-white p-6 rounded shadow w-full max-w-lg">
-    <?php echo csrf_field(); ?>
+    .form-wrap {
+        max-width: 720px;
+    }
 
-    <!-- Customer -->
-    <label class="block mb-1 font-medium">Customer</label>
-    <select name="customer_id" class="w-full border px-3 py-2 mb-4 rounded">
-        <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <option value="<?php echo e($customer->id); ?>"><?php echo e($customer->name); ?></option>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </select>
+    .page-title {
+        font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+        color: #1C1917; margin-bottom: 20px;
+    }
 
-    <!-- Pickup -->
-    <label class="block mb-1 font-medium">Pickup Location</label>
-    <input id="pickup_location" name="pickup_address" class="w-full border px-3 py-2 mb-4 rounded">
+    .form-card {
+        background: #fff; border: 1px solid #E7E5E4;
+        border-radius: 10px; overflow: hidden;
+    }
 
-    <input type="hidden" name="pickup_lat" id="pickup_lat">
-    <input type="hidden" name="pickup_lng" id="pickup_lng">
-    <input type="hidden" name="pickup_city" id="pickup_city"> <!-- ✅ NEW -->
+    .form-section {
+        padding: 20px 24px;
+        border-bottom: 1px solid #F5F5F4;
+    }
+    .form-section:last-child { border-bottom: none; }
 
-    <!-- Delivery -->
-    <label class="block mb-1 font-medium">Delivery Location</label>
-    <input id="delivery_location" name="delivery_address" class="w-full border px-3 py-2 mb-4 rounded">
+    .section-title {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+        text-transform: uppercase; color: #A8A29E; margin-bottom: 14px;
+    }
 
-    <input type="hidden" name="delivery_lat" id="delivery_lat">
-    <input type="hidden" name="delivery_lng" id="delivery_lng">
-    <input type="hidden" name="delivery_city" id="delivery_city"> <!-- ✅ NEW -->
+    .form-grid {
+        display: grid; gap: 14px;
+    }
+    .form-grid-2 { grid-template-columns: 1fr 1fr; }
 
-    <!-- Material -->
-    <label class="block mb-1 font-medium">Material</label>
-    <input name="material" class="w-full border px-3 py-2 mb-4 rounded">
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
 
-    <!-- Weight -->
-    <label class="block mb-1 font-medium">Weight</label>
-    <input name="weight" class="w-full border px-3 py-2 mb-4 rounded">
+    .form-label {
+        font-size: 12px; font-weight: 600; color: #57534E;
+        letter-spacing: 0.01em;
+    }
 
-    <!-- Date -->
-    <label class="block mb-1 font-medium">Pickup Date</label>
-    <input type="date" name="pickup_date" class="w-full border px-3 py-2 mb-4 rounded">
+    .form-input, .form-select, .form-textarea {
+        padding: 9px 12px; border: 1px solid #E7E5E4;
+        border-radius: 7px; font-size: 13px; font-family: inherit;
+        color: #1C1917; background: #fff; outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        width: 100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        border-color: #E85D2F;
+        box-shadow: 0 0 0 3px rgba(232, 93, 47, 0.08);
+    }
+    .form-textarea { resize: vertical; min-height: 80px; }
 
-    <label class="block mb-1 font-medium">Pickup Time Slot</label>
-    <select name="pickup_time_slot" class="w-full border px-3 py-2 mb-4 rounded" required>
-        <option value="">Select Time Slot</option>
-        <option value="early_morning">Early Morning (4AM–8AM)</option>
-        <option value="morning">Morning (8AM–12PM)</option>
-        <option value="afternoon">Afternoon (12PM–4PM)</option>
-        <option value="evening">Evening (4PM–8PM)</option>
-        <option value="night">Night (8PM–12AM)</option>
-        <option value="late_night">Late Night (12AM–4AM)</option>
-    </select>
+    .form-hint {
+        font-size: 11px; color: #A8A29E; margin-top: 2px;
+    }
 
-    <!-- Price -->
-    <label class="block mb-1 font-medium">Price</label>
-    <input name="price" class="w-full border px-3 py-2 mb-4 rounded">
+    .location-group { position: relative; }
+    .location-icon {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        color: #A8A29E; font-size: 13px; pointer-events: none;
+    }
+    .location-input { padding-left: 28px !important; }
 
-    <!-- Truck Type -->
-    <label class="block mb-1 font-medium">Truck Type Required</label>
-    <select name="truck_type_required_id" class="w-full border px-3 py-2 mb-4 rounded">
-        <option value="">Select Type</option>
-        <?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <option value="<?php echo e($type->id); ?>"><?php echo e($type->name); ?></option>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </select>
+    .form-footer {
+        padding: 16px 24px;
+        display: flex; align-items: center; justify-content: space-between;
+        border-top: 1px solid #F5F5F4; background: #FAFAF9;
+    }
 
-    <!-- Priority -->
-    <label class="block mb-1 font-medium">Priority</label>
-    <select name="priority" class="w-full border px-3 py-2 mb-4 rounded">
-        <option value="normal">Normal</option>
-        <option value="high">High</option>
-        <option value="low">Low</option>
-    </select>
+    .btn-primary {
+        background: #E85D2F; color: #fff; border: none;
+        padding: 9px 24px; border-radius: 7px; font-size: 13px;
+        font-weight: 600; cursor: pointer; font-family: inherit;
+        transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #D4522A; }
 
-    <!-- Trip Days -->
-    <label class="block mb-1 font-medium">Trip Days</label>
-    <input type="number" name="trip_days" value="1" class="w-full border px-3 py-2 mb-4 rounded">
+    .btn-cancel {
+        color: #78716C; font-size: 13px; font-weight: 500;
+        text-decoration: none; padding: 9px 16px; border-radius: 7px;
+        transition: background 0.1s;
+    }
+    .btn-cancel:hover { background: #F5F5F4; }
+</style>
 
-    <!-- Notes -->
-    <label class="block mb-1 font-medium">Notes</label>
-    <textarea name="notes" class="w-full border px-3 py-2 mb-4 rounded"></textarea>
+<div class="form-wrap">
 
-    <!-- Submit -->
-    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
-        Save Load
-    </button>
+    <div class="page-title">New Load</div>
 
-</form>
+    <form method="POST" action="<?php echo e(route('loads.store')); ?>" class="form-card">
+        <?php echo csrf_field(); ?>
+
+        
+        <div class="form-section">
+            <div class="section-title">Customer</div>
+            <div class="form-group">
+                <label class="form-label">Select Customer</label>
+                <select name="customer_id" class="form-select" required>
+                    <option value="">Choose a customer…</option>
+                    <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($customer->id); ?>">
+                            <?php echo e($customer->name); ?><?php echo e($customer->company_name ? ' — ' . $customer->company_name : ''); ?>
+
+                        </option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select>
+            </div>
+        </div>
+
+        
+        <div class="form-section">
+            <div class="section-title">Route</div>
+            <div class="form-grid form-grid-2">
+
+                <div class="form-group">
+                    <label class="form-label">Pickup Location</label>
+                    <div class="location-group">
+                        <span class="location-icon">⬆</span>
+                        <input id="pickup_location" name="pickup_address"
+                               class="form-input location-input"
+                               placeholder="Search pickup city or address…" autocomplete="off">
+                    </div>
+                    <input type="hidden" name="pickup_lat"  id="pickup_lat">
+                    <input type="hidden" name="pickup_lng"  id="pickup_lng">
+                    <input type="hidden" name="pickup_city" id="pickup_city">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Delivery Location</label>
+                    <div class="location-group">
+                        <span class="location-icon">⬇</span>
+                        <input id="delivery_location" name="delivery_address"
+                               class="form-input location-input"
+                               placeholder="Search delivery city or address…" autocomplete="off">
+                    </div>
+                    <input type="hidden" name="delivery_lat"  id="delivery_lat">
+                    <input type="hidden" name="delivery_lng"  id="delivery_lng">
+                    <input type="hidden" name="delivery_city" id="delivery_city">
+                </div>
+
+            </div>
+        </div>
+
+        
+        <div class="form-section">
+            <div class="section-title">Cargo</div>
+            <div class="form-grid form-grid-2">
+
+                <div class="form-group">
+                    <label class="form-label">Material</label>
+                    <input name="material" class="form-input" placeholder="e.g. Steel, Cement…">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Weight (Tonnes)</label>
+                    <input name="weight" type="number" step="0.1" class="form-input" placeholder="0.0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Truck Type Required</label>
+                    <select name="truck_type_required_id" class="form-select" required>
+                        <option value="">Select type…</option>
+                        <?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($type->id); ?>"><?php echo e($type->name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Price (₹)</label>
+                    <input name="price" type="number" class="form-input" placeholder="0">
+                </div>
+
+            </div>
+        </div>
+
+        
+        <div class="form-section">
+            <div class="section-title">Schedule</div>
+            <div class="form-grid form-grid-2">
+
+                <div class="form-group">
+                    <label class="form-label">Pickup Date</label>
+                    <input type="date" name="pickup_date" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Pickup Time Slot</label>
+                    <select name="pickup_time_slot" class="form-select" required>
+                        <option value="">Select slot…</option>
+                        <option value="early_morning">Early Morning (4AM – 8AM)</option>
+                        <option value="morning">Morning (8AM – 12PM)</option>
+                        <option value="afternoon">Afternoon (12PM – 4PM)</option>
+                        <option value="evening">Evening (4PM – 8PM)</option>
+                        <option value="night">Night (8PM – 12AM)</option>
+                        <option value="late_night">Late Night (12AM – 4AM)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Trip Days</label>
+                    <input type="number" name="trip_days" value="1" min="1" class="form-input">
+                    <span class="form-hint">Used to calculate delivery date</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        
+        <div class="form-section">
+            <div class="section-title">Additional Info</div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-textarea"
+                          placeholder="Any special instructions, requirements, or notes…"></textarea>
+            </div>
+        </div>
+
+        
+        <div class="form-footer">
+            <a href="<?php echo e(route('loads.index')); ?>" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary">Save Load</button>
+        </div>
+
+    </form>
 </div>
 
 <script>
 function getCityFromPlace(place) {
-    let city = '';
-
-    for (const component of place.address_components) {
-        if (component.types.includes('locality')) {
-            city = component.long_name;
-        }
+    for (const c of place.address_components) {
+        if (c.types.includes('locality')) return c.long_name;
     }
-
-    if (!city) {
-        for (const component of place.address_components) {
-            if (component.types.includes('administrative_area_level_2')) {
-                city = component.long_name;
-            }
-        }
+    for (const c of place.address_components) {
+        if (c.types.includes('administrative_area_level_2')) return c.long_name;
     }
-
-    return city;
+    return '';
 }
 
 function initAutocomplete() {
-
-    // PICKUP
     const pickupInput = document.getElementById('pickup_location');
-    const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput);
-
-    pickupAutocomplete.addListener('place_changed', function () {
-        const place = pickupAutocomplete.getPlace();
-
-        if (!place.geometry) {
-            alert("Please select a valid pickup location");
-            pickupInput.value = '';
-            return;
-        }
-
-        document.getElementById('pickup_lat').value = place.geometry.location.lat();
-        document.getElementById('pickup_lng').value = place.geometry.location.lng();
-
-        // ✅ STORE CITY (NOT overwrite input)
+    const pickupAC = new google.maps.places.Autocomplete(pickupInput);
+    pickupAC.addListener('place_changed', function () {
+        const place = pickupAC.getPlace();
+        if (!place.geometry) { pickupInput.value = ''; return; }
+        document.getElementById('pickup_lat').value  = place.geometry.location.lat();
+        document.getElementById('pickup_lng').value  = place.geometry.location.lng();
         document.getElementById('pickup_city').value = getCityFromPlace(place);
     });
 
-    // DELIVERY
     const deliveryInput = document.getElementById('delivery_location');
-    const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput);
-
-    deliveryAutocomplete.addListener('place_changed', function () {
-        const place = deliveryAutocomplete.getPlace();
-
-        if (!place.geometry) {
-            alert("Please select a valid delivery location");
-            deliveryInput.value = '';
-            return;
-        }
-
-        document.getElementById('delivery_lat').value = place.geometry.location.lat();
-        document.getElementById('delivery_lng').value = place.geometry.location.lng();
-
-        // ✅ STORE CITY
+    const deliveryAC = new google.maps.places.Autocomplete(deliveryInput);
+    deliveryAC.addListener('place_changed', function () {
+        const place = deliveryAC.getPlace();
+        if (!place.geometry) { deliveryInput.value = ''; return; }
+        document.getElementById('delivery_lat').value  = place.geometry.location.lat();
+        document.getElementById('delivery_lng').value  = place.geometry.location.lng();
         document.getElementById('delivery_city').value = getCityFromPlace(place);
     });
 }
